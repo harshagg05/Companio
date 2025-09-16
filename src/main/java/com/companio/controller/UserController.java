@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.companio.model.User;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("v1/api/user")
 public class UserController {
 
     @Autowired
     UserService userService;
 
-    @PostMapping("/addUser")
-    public ResponseEntity<String> add(@RequestBody User user){
-        return userService.add(user);
+    @PostMapping
+    public ResponseEntity<String> register(@RequestBody User user){
+        return userService.register(user);
     }
 
-    @PostMapping("/verify")
+    @PostMapping("/login")
     public ResponseEntity<String> verify(@RequestBody User user){
         return userService.verify(user);
     }

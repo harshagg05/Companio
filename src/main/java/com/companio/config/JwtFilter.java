@@ -2,6 +2,8 @@ package com.companio.config;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.companio.service.JwtService;
 import com.companio.service.UserDetailService;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +23,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter{
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
+
+    @PostConstruct
+public void init() {
+    logger.info("✅ JwtFilter bean initialized");
+}
 
     @Autowired
     JwtService jwtService;
@@ -34,10 +44,12 @@ public class JwtFilter extends OncePerRequestFilter{
         String token = null;
         String username = null;
 
-
+        logger.debug("Authorization Header: "+authHeader);
         if(authHeader!=null && authHeader.startsWith("Bearer ")){
             token = authHeader.substring(7);
+            logger.debug("Token Parsed: "+token);
             username = jwtService.extractUsername(token);
+            logger.debug("Extracted Username "+username);
         }
 
         if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){

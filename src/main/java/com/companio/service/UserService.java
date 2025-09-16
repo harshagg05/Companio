@@ -1,5 +1,7 @@
 package com.companio.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import com.companio.repo.UserRepo;
 
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     UserRepo userRepo;
@@ -31,13 +35,13 @@ public class UserService {
     VerifyByTokenService verifyByTokenService;
 
     public ResponseEntity<String> verify(User user) {
-        System.out.println("Verify Method Called in User Service");
+        logger.info("Verfiy Method Called");
         try{
             Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 
             if(authentication.isAuthenticated()){
                 // return ResponseEntity.ok("User is Valid and have its email: !"+user.getEmail());
-                System.out.println("User That is autehnticated is: "+user.getEmail());
+                logger.info("User That is Being Authenticated is: "+user.getEmail());
                 return ResponseEntity.ok("User is valid and generated token is : "+jwtService.generateToken(user.getEmail()));
             }
         }
@@ -47,7 +51,7 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication Failed from UserService");
     }
 
-    public ResponseEntity<String> add(User user) {
+    public ResponseEntity<String> register(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
         userRepo.save(user);
         String link = verifyByTokenService.createAndSentVerifyToken(user.getEmail());

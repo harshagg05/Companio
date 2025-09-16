@@ -22,21 +22,21 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    // @Value("${jwt.secret}")
+    @Value("${jwt.secretKey}")
     private String secretKey;
 
-    public JwtService(){
-        try{
-            System.out.println("This got called");
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-            System.out.println("Secret key is: "+secretKey+"End");
-        }
-        catch(NoSuchAlgorithmException e){
-            throw new RuntimeException(e);
-        }
-    }
+    // public JwtService(){
+    //     try{
+    //         System.out.println("Jwt Service Called");
+    //         KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+    //         SecretKey sk = keyGen.generateKey();
+    //         secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
+    //         System.out.println("Secret key is: "+secretKey+"End");
+    //     }
+    //     catch(NoSuchAlgorithmException e){
+    //         throw new RuntimeException(e);
+    //     }
+    // }
 
     public String generateToken(String email){
         Map<String,Object> claims = new HashMap<>();
@@ -48,7 +48,7 @@ public class JwtService {
                     .issuedAt(new Date(System.currentTimeMillis()))
                     .expiration(new Date(System.currentTimeMillis() + 600 * 60 * 60))
                     .and()
-                    .signWith(getKey(),Jwts.SIG.HS256);
+                    .signWith(getKey());
 
         return builder.compact();
     }
