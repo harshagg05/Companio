@@ -51,7 +51,7 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication Failed from UserService");
     }
 
-    public ResponseEntity<String> register(User user) {
+    public ResponseEntity<String> signup(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
         userRepo.save(user);
         String link = verifyByTokenService.createAndSentVerifyToken(user.getEmail());
