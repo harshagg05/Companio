@@ -26,7 +26,7 @@ public class UserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.info("LoadByUsername Function Called");
         User user = userRepo.findByEmail(username)
-                .orElseThrow(() -> new UserEmailNotFoundException("Please Enter a Valid Email: " + username));
+                .orElseThrow(() -> new UserEmailNotFoundException("Invalid UserName or Password (LoadByUsername)"));
 
         if (!user.isVerified()) {
             logger.error("User is Not Verified Checked in LoadByUserName Function Sending Exception UserNotVerficationException");

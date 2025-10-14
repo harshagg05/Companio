@@ -1,6 +1,8 @@
 package com.companio.exception;
 
-public class UserEmailNotFoundException extends RuntimeException{
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+public class UserEmailNotFoundException extends UsernameNotFoundException{
     public UserEmailNotFoundException(String message){
         super(message);
     }

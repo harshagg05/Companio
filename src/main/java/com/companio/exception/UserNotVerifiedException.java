@@ -1,6 +1,8 @@
 package com.companio.exception;
 
-public class UserNotVerifiedException extends RuntimeException{
+import org.springframework.security.core.AuthenticationException;
+
+public class UserNotVerifiedException extends AuthenticationException{
     public UserNotVerifiedException(String message){
         super(message);
     }
