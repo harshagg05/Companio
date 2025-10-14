@@ -11,4 +11,5 @@ import com.companio.model.Trip;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip,UUID>,JpaSpecificationExecutor<Trip>{
+    List<Trip> findByUserIdAndSlugStartingWithIgnoreCase(UUID userId,String slugPrefix);
 }

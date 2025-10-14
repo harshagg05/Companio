@@ -3,15 +3,18 @@ package com.companio.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.companio.Specification.TripSpecification;
 import com.companio.dto.TripRequest;
 import com.companio.dto.TripResponse;
+import com.companio.exception.UserEmailNotFoundException;
 import com.companio.model.Trip;
 import com.companio.model.User;
 import com.companio.repo.TripRepository;
@@ -27,6 +30,8 @@ public class TripService {
     @Autowired
     private final UserRepo userRepo;
 
+
+    @Transactional
     public TripResponse createtrip (TripRequest request,String userEmail){
         User user = userRepo.findByEmail(userEmail).orElseThrow(()-> new RuntimeException("User not found"));
 
@@ -44,7 +49,10 @@ public class TripService {
         trip.setStartDate(request.getStartDate());
         trip.setEndDate(request.getEndDate());
         trip.setBudgetMin(request.getBudgetMin());
-        trip.setBudgetMax(request.getBudgetMax());  
+        trip.setBudgetMax(request.getBudgetMax());
+        
+        String slug = generateSlug(request.getTitle());
+        trip.setSlug(slug);
 
         Trip savedtrip  = tripRepo.save(trip);
         return mapToResponse(savedtrip);
@@ -94,5 +102,22 @@ public class TripService {
         resp.setPostedByUserId(trip.getUser().getId());
         resp.setPostedBy(trip.getUser().getFullName()); // Assuming User has a getDisplayName() method
         return resp;
+    }
+
+    private String generateSlug(String title){
+        return title.toLowerCase()
+                    .replaceAll("[^a-z0-9\\s-]","")
+                    .replaceAll("\\s+","-")
+                    .replaceAll("-+","-");
+    }
+
+    public List<TripResponse> searchMyTripBySlug(String prefix,String userEmail){
+        User currentUser = userRepo.findByEmail(userEmail).orElseThrow(() -> new UserEmailNotFoundException("User Not Found"));
+
+        List<Trip> trips = tripRepo.findByUserIdAndSlugStartingWithIgnoreCase(currentUser.getId(), prefix);
+
+        return trips.stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
     }
 }

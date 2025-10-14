@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +35,8 @@ public class Trip {
     private User user;
 
     private String title;
+    @Column(unique = true, nullable = false)
+    private String slug;
     private String description;
 
     private String placeId;
@@ -42,14 +45,15 @@ public class Trip {
     private String stateName;
     private String countryName;
 
-    private Double locationLat;
-    private Double locationLng;
-
+    
+    private BigDecimal budgetMin;
+    private BigDecimal budgetMax;
+    
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private BigDecimal budgetMin;
-    private BigDecimal budgetMax;
+    private Double locationLat;
+    private Double locationLng;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -2,6 +2,7 @@ package com.companio.controller;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,6 +33,10 @@ public class UserPrinciple implements UserDetails{
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+    public UUID getUserId(){
+        return user.getId();
     }
 
     @Override

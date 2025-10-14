@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,4 +47,13 @@ public class TripController {
         return ResponseEntity.ok(results);
     }
 
+
+    @GetMapping("/my-trips/search")
+    public ResponseEntity<List<TripResponse>> searchMyTripUsingSlug(
+                                            @RequestParam String prefix,
+                                            @AuthenticationPrincipal UserPrinciple userPrinciple
+    ){
+        List<TripResponse> foundTrips = tripService.searchMyTripBySlug(prefix, userPrinciple.getUsername());
+        return ResponseEntity.ok(foundTrips);
+    }
 }
