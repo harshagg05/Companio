@@ -1,13 +1,16 @@
 package com.companio.service;
 
 import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ import com.companio.model.User;
 import com.companio.repo.TripRepository;
 import com.companio.repo.UserRepo;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -106,8 +110,8 @@ public class TripService {
 
     private String generateSlug(String title){
         return title.toLowerCase()
-                    .replaceAll("[^a-z0-9\\s-]","")
-                    .replaceAll("\\s+","-")
+                    .replaceAll("[^a-z0-9\s-]","")
+                    .replaceAll("\s+","-")
                     .replaceAll("-+","-");
     }
 
@@ -130,5 +134,35 @@ public class TripService {
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());
 
+    }
+
+    @Transactional
+    public TripResponse updateTrip(UUID tripId, TripRequest request, String userEmail)throws AccessDeniedException{
+        User currentUser = userRepo.findByEmail(userEmail).orElseThrow( ()-> new UserEmailNotFoundException("User Not Found (Inside trip Service) -> updateTrip"));
+
+        Trip trip = tripRepo.findById(tripId).orElseThrow( ()-> new RuntimeException("Trip Not found with "+tripId));
+
+        if(!trip.getUser().getId().equals(currentUser.getId())){
+            throw new AccessDeniedException("You Don't have permission to edit the Trip");
+        }
+
+        trip.setTitle(request.getTitle());
+        trip.setDescription(request.getDescription());
+        trip.setLocationName(request.getLocationName());
+        trip.setBudgetMax(request.getBudgetMax());
+        trip.setBudgetMin(request.getBudgetMin());
+        trip.setCityName(request.getCityName());
+        trip.setEndDate(request.getEndDate());
+        trip.setStartDate(request.getStartDate());
+        trip.setCountryName(request.getCountryName());
+        trip.setLocationLat(request.getLocationLat());
+        trip.setLocationLng(request.getLocationLng());
+        trip.setPlaceId(request.getPlaceId());
+
+        String slug = generateSlug(request.getTitle());
+        trip.setSlug(slug);
+
+        Trip updatedTrip = tripRepo.save(trip);
+        return mapToResponse(updatedTrip);
     }
 }
