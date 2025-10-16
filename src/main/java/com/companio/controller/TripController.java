@@ -56,4 +56,11 @@ public class TripController {
         List<TripResponse> foundTrips = tripService.searchMyTripBySlug(prefix, userPrinciple.getUsername());
         return ResponseEntity.ok(foundTrips);
     }
+
+    //For a User Personal Trip
+    @GetMapping("/my-trips")
+    public ResponseEntity<List<TripResponse>> myTrips(@AuthenticationPrincipal UserPrinciple userPrinciple){
+        List<TripResponse> myTrip = tripService.myTrips(userPrinciple.getUsername());
+        return ResponseEntity.ok(myTrip);
+    }
 }

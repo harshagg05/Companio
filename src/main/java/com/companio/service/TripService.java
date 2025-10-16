@@ -112,12 +112,23 @@ public class TripService {
     }
 
     public List<TripResponse> searchMyTripBySlug(String prefix,String userEmail){
-        User currentUser = userRepo.findByEmail(userEmail).orElseThrow(() -> new UserEmailNotFoundException("User Not Found"));
+        User currentUser = userRepo.findByEmail(userEmail).orElseThrow(() -> new UserEmailNotFoundException("User Not Found (Inside Trip Service -> searchMyTripsBySlug Method)"));
 
         List<Trip> trips = tripRepo.findByUserIdAndSlugStartingWithIgnoreCase(currentUser.getId(), prefix);
 
         return trips.stream()
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());
+    }
+
+    public List<TripResponse> myTrips(String userEmail) {
+        User currentUser = userRepo.findByEmail(userEmail).orElseThrow(() -> new UserEmailNotFoundException("User Not Found (Inside Trip Service -> myTrips Method)"));
+
+        List<Trip> trips = tripRepo.findByUserId(currentUser.getId());
+
+        return trips.stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
+
     }
 }
