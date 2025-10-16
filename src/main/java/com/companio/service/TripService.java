@@ -8,8 +8,11 @@ import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -164,5 +167,18 @@ public class TripService {
 
         Trip updatedTrip = tripRepo.save(trip);
         return mapToResponse(updatedTrip);
+    }
+
+    public ResponseEntity<?> deleteTrip(UUID tripId, String email) {
+        User currUser = userRepo.findByEmail(email).orElseThrow( ()-> new UserEmailNotFoundException("User Not Found (Trip Service -> deleteTrip)"));
+
+        Trip trip = tripRepo.findById(tripId).orElseThrow( () -> new RuntimeException("Trip not Found with TripId (TripService -> deletetrip)"));
+
+        if(!trip.getUser().getId().equals(currUser.getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User Email not Matched");
+        }
+
+        tripRepo.deleteById(tripId);
+        return ResponseEntity.status(HttpStatus.OK).body("Trip successfully Deleted");
     }
 }
