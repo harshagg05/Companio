@@ -34,6 +34,9 @@ public class UserService {
     @Autowired
     VerifyByTokenService verifyByTokenService;
 
+    @Autowired
+    EmailService emailService;
+
     public ResponseEntity<String> verify(User user) {
         logger.info("Verfiy Method Called");
         try{
@@ -54,8 +57,14 @@ public class UserService {
     public ResponseEntity<String> signup(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
         userRepo.save(user);
-        String link = verifyByTokenService.createAndSentVerifyToken(user.getEmail());
+        final String userMail = user.getEmail();
+        String link = verifyByTokenService.createAndSentVerifyToken(userMail);
         System.out.println(link);
+
+        //Mail got send
+        emailService.sendVerficationMail(userMail,link);
+        emailService.sendAccountCreationMailAfterVerification(userMail);
+ 
         return ResponseEntity.ok("User Added Successfully and link is sent in email");
     }
 
